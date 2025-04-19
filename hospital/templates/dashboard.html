@@ -1,0 +1,1005 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Hospital Management System{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts/dist/apexcharts.css">
+<style>
+    .stat-card {
+        border-radius: 1rem;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    [data-bs-theme="dark"] .stat-card,
+    [data-bs-theme="dark"] .quick-stats {
+        background-color: #2c2c3e;
+        color: #f1f1f1;
+    }
+
+    [data-bs-theme="dark"] .quick-stats h5,
+    [data-bs-theme="dark"] .quick-stats p,
+    [data-bs-theme="dark"] .quick-stats span {
+        color: #f1f1f1 !important;
+    }
+
+    [data-bs-theme="dark"] .stat-value,
+    [data-bs-theme="dark"] .stat-label {
+        color: #f1f1f1 !important;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 1.5rem;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+    
+    .stat-label {
+        font-size: 0.875rem;
+        color: #495057;
+        font-weight: 500;
+    }
+    
+    .chart-container {
+        min-height: 300px;
+    }
+    
+    .activity-item {
+        padding: 1rem;
+        border-left: 3px solid var(--primary-color);
+        margin-bottom: 1rem;
+        background-color: rgba(67, 97, 238, 0.05);
+        border-radius: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .activity-item:hover {
+        background-color: rgba(67, 97, 238, 0.1);
+        transform: translateX(5px);
+    }
+    
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 1rem;
+    }
+    
+    .table-hover tbody tr {
+        transition: all 0.2s ease;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: rgba(67, 97, 238, 0.05);
+    }
+    
+    .badge {
+        padding: 0.5em 0.75em;
+        font-weight: 500;
+        border-radius: 0.5rem;
+    }
+    
+    .quick-actions .btn {
+        border-radius: 0.75rem;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .quick-actions .btn i {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .quick-actions .btn:hover {
+        transform: translateY(-5px);
+    }
+    
+    .welcome-banner {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-radius: 1rem;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+    }
+    
+    .welcome-banner h1 {
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .welcome-banner p {
+        opacity: 0.9;
+        margin-bottom: 0;
+    }
+    
+    /* Hospital Info Styles */
+    .hospital-info {
+        background-color: #f8f9fa;
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-top: 2rem;
+    }
+    
+    .hospital-info h2 {
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: var(--primary-color);
+    }
+    
+    .hospital-info p {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+    
+    .achievement-card {
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        background-color: white;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        transition: all 0.3s ease;
+    }
+    
+    .achievement-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    
+    .achievement-icon {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+    
+    .achievement-title {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .achievement-year {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+    
+    .info-sidebar {
+        background-color: #f8f9fa;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    .info-sidebar h3 {
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--primary-color);
+    }
+    
+    .info-sidebar ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+    
+    .info-sidebar li {
+        margin-bottom: 0.75rem;
+        padding-left: 1.5rem;
+        position: relative;
+    }
+    
+    .info-sidebar li:before {
+        content: "•";
+        color: var(--primary-color);
+        font-weight: bold;
+        position: absolute;
+        left: 0;
+    }
+    
+    /* Feedback Form Styles */
+    .feedback-section {
+        background-color: #f8f9fa;
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-top: 2rem;
+    }
+    
+    .feedback-section h2 {
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: var(--primary-color);
+    }
+    
+    .feedback-form .form-control {
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .feedback-form .form-label {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+    
+    .feedback-form .btn-submit {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        border-radius: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+    }
+    
+    .feedback-form .btn-submit:hover {
+        background-color: var(--secondary-color);
+        border-color: var(--secondary-color);
+    }
+    
+    .rating-stars {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .rating-stars i {
+        font-size: 1.5rem;
+        color: #ffc107;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .rating-stars i:hover {
+        transform: scale(1.2);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Left Sidebar -->
+        <div class="col-md-3 col-lg-2 d-md-block sidebar">
+            <div class="position-sticky pt-3">
+                <div class="sidebar-header mb-4">
+                    <h4 class="text-center">Hospital Dashboard</h4>
+                    <div class="text-center mb-3">
+                        <i class="fas fa-hospital text-primary" style="font-size: 2rem;"></i>
+                    </div>
+                    <div class="text-center">
+                        <p class="mb-1">Welcome, {{ user.first_name|default:user.username }}</p>
+                        <small class="text-muted">{% now "F j, Y" %}</small>
+                        <div class="fw-bold" id="current-time">{% now "g:i A" %}</div>
+                    </div>
+                </div>
+
+                <!-- Navigation Links -->
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">
+                            <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'patient_list' %}">
+                            <i class="fas fa-user-injured me-2"></i> Patients
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'appointment_list' %}">
+                            <i class="fas fa-calendar-check me-2"></i> Appointments
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'bed_management' %}">
+                            <i class="fas fa-bed me-2"></i> Bed Management
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'transaction_list' %}">
+                            <i class="fas fa-file-invoice-dollar me-2"></i> Transactions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'history' %}">
+                            <i class="fas fa-history me-2"></i> History
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Quick Stats -->
+                <div class="mt-4 p-3 bg-light rounded">
+                    <h6 class="text-center mb-3">Quick Stats</h6>
+                    <div class="small">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Patients:</span>
+                            <span class="fw-bold">{{ total_patients }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Beds:</span>
+                            <span class="fw-bold">{{ available_beds }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Appointments:</span>
+                            <span class="fw-bold">{{ today_appointments }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Staff:</span>
+                            <span class="fw-bold">{{ active_staff }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10 ms-sm-auto px-md-4">
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon bg-primary bg-opacity-10 text-primary me-3">
+                            <i class="fas fa-user-injured"></i>
+                        </div>
+                        <div>
+                            <div class="stat-value">{{ total_patients }}</div>
+                            <div class="stat-label">Total Patients</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon bg-success bg-opacity-10 text-success me-3">
+                            <i class="fas fa-bed"></i>
+                        </div>
+                        <div>
+                            <div class="stat-value">{{ available_beds }}</div>
+                            <div class="stat-label">Available Beds</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon bg-info bg-opacity-10 text-info me-3">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div>
+                            <div class="stat-value">{{ today_appointments }}</div>
+                            <div class="stat-label">Today's Appointments</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon bg-warning bg-opacity-10 text-warning me-3">
+                            <i class="fas fa-user-md"></i>
+                        </div>
+                        <div>
+                            <div class="stat-value">{{ active_staff }}</div>
+                            <div class="stat-label">Active Staff</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3 quick-actions">
+                        <div class="col-md-3 col-sm-6">
+                            <a href="{% url 'patient_create' %}" class="btn btn-light w-100">
+                                <i class="fas fa-user-plus text-primary"></i>
+                                <span>Add Patient</span>
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <a href="{% url 'appointment_create' %}" class="btn btn-light w-100">
+                                <i class="fas fa-calendar-plus text-success"></i>
+                                <span>Schedule Appointment</span>
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <a href="{% url 'bed_create' %}" class="btn btn-light w-100">
+                                <i class="fas fa-plus-circle text-info"></i>
+                                <span>Add Bed</span>
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <a href="{% url 'transaction_list' %}" class="btn btn-light w-100">
+                                <i class="fas fa-file-invoice-dollar text-warning"></i>
+                                <span>View Transactions</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="row g-4">
+        <!-- Charts -->
+        <div class="col-md-8">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Hospital Statistics</h5>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-outline-primary active" data-period="week">Week</button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-period="month">Month</button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-period="year">Year</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="hospitalStatsChart" class="chart-container"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activities -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Recent Activities</h5>
+                    <a href="{% url 'history' %}" class="btn btn-sm btn-primary">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for activity in recent_activities %}
+                        <div class="activity-item">
+                            <div class="d-flex">
+                                <div class="activity-icon bg-{{ activity.color }} bg-opacity-10 text-{{ activity.color }} me-3">
+                                    <i class="fas fa-{{ activity.icon }}"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ activity.title }}</div>
+                                    <div class="small text-dark">{{ activity.description }}</div>
+                                    <div class="small text-dark mt-1">
+                                        <i class="far fa-clock me-1"></i>{{ activity.date|date:"M d, Y H:i" }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-4">
+                            <img src="{% static 'images/no-data.svg' %}" alt="No Data" class="mb-3" style="width: 100px;">
+                            <p class="mb-0">No recent activities</p>
+                            <small class="text-dark">Activities will appear here</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tables Row -->
+    <div class="row g-4 mt-4">
+        <!-- Recent Patients -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Recent Patients</h5>
+                    <a href="{% url 'patient_list' %}" class="btn btn-sm btn-primary">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for patient in recent_patients %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-initial rounded-circle bg-primary bg-opacity-10 text-primary me-2">
+                                                {{ patient.first_name|slice:":1" }}{{ patient.last_name|slice:":1" }}
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">{{ patient.first_name }} {{ patient.last_name }}</div>
+                            <small class="text-dark">ID: {{ patient.id }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ patient.status_color }}">
+                                            {{ patient.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ patient.created_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        <a href="{% url 'patient_detail' patient.pk %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4">
+                                        <img src="{% static 'images/no-data.svg' %}" alt="No Data" class="mb-3" style="width: 100px;">
+                                        <p class="mb-0">No recent patients</p>
+                                        <small class="text-dark">Patients will appear here</small>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Today's Appointments -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Today's Appointments</h5>
+                    <a href="{% url 'appointment_list' %}" class="btn btn-sm btn-primary">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Patient</th>
+                                    <th>Doctor</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for appointment in today_appointments_list %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-initial rounded-circle bg-primary bg-opacity-10 text-primary me-2">
+                                                {{ appointment.patient.first_name|slice:":1" }}{{ appointment.patient.last_name|slice:":1" }}
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">{{ appointment.patient.first_name }} {{ appointment.patient.last_name }}</div>
+                                <small class="text-dark">ID: {{ appointment.patient.id }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-initial rounded-circle bg-info bg-opacity-10 text-info me-2">
+                                                {{ appointment.doctor.user.first_name|slice:":1" }}{{ appointment.doctor.user.last_name|slice:":1" }}
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">Dr. {{ appointment.doctor.user.first_name }}</div>
+                                        <small class="text-dark">{{ appointment.doctor.specialization }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold">{{ appointment.appointment_time|time:"g:i A" }}</div>
+                                        <small class="text-dark">{{ appointment.appointment_date|date:"M d, Y" }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ appointment.status_color }}">
+                                            {{ appointment.get_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4">
+                                        <img src="{% static 'images/no-data.svg' %}" alt="No Data" class="mb-3" style="width: 100px;">
+                                        <p class="mb-0">No appointments today</p>
+                                        <small class="text-dark">Appointments will appear here</small>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Hospital Information and Achievements -->
+    <div class="row g-4 mt-4">
+        <div class="col-md-8">
+            <div class="hospital-info">
+                <h2>About Riverside General Hospital</h2>
+                <p>Founded in 1985, Riverside General Hospital has been a cornerstone of healthcare in the community for over 35 years. Our mission is to provide exceptional patient care through advanced medical technology, skilled healthcare professionals, and a compassionate approach to healing.</p>
+                <p>With over 200 beds and a staff of more than 500 healthcare professionals, we offer a comprehensive range of medical services including emergency care, surgery, pediatrics, obstetrics, and specialized treatments for chronic conditions.</p>
+                <p>Our hospital is accredited by the Joint Commission and has received numerous awards for patient safety and quality of care. We are committed to continuous improvement and innovation in healthcare delivery.</p>
+                
+                <h3 class="mt-4">Our Achievements</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="achievement-card">
+                            <div class="achievement-icon bg-primary bg-opacity-10 text-primary">
+                                <i class="fas fa-award"></i>
+                            </div>
+                            <div class="achievement-title">Excellence in Patient Care Award</div>
+                            <div class="achievement-year">2022</div>
+                            <p>Recognized for outstanding patient satisfaction scores and quality of care.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="achievement-card">
+                            <div class="achievement-icon bg-success bg-opacity-10 text-success">
+                                <i class="fas fa-heartbeat"></i>
+                            </div>
+                            <div class="achievement-title">Cardiac Care Center of Excellence</div>
+                            <div class="achievement-year">2021</div>
+                            <p>Designated as a regional center for advanced cardiac procedures and treatments.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="achievement-card">
+                            <div class="achievement-icon bg-info bg-opacity-10 text-info">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <div class="achievement-title">Neuroscience Innovation Award</div>
+                            <div class="achievement-year">2020</div>
+                            <p>Pioneered new techniques in neurological treatments and rehabilitation.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="achievement-card">
+                            <div class="achievement-icon bg-warning bg-opacity-10 text-warning">
+                                <i class="fas fa-baby"></i>
+                            </div>
+                            <div class="achievement-title">Mother & Baby Friendly Hospital</div>
+                            <div class="achievement-year">2019</div>
+                            <p>Certified for exceptional maternity care and neonatal services.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="info-sidebar">
+                <h3>Hospital Information</h3>
+                <ul>
+                    <li><strong>Address:</strong> 123 Medical Center Drive, Riverside, CA 92501</li>
+                    <li><strong>Phone:</strong> (555) 123-4567</li>
+                    <li><strong>Emergency:</strong> (555) 987-6543</li>
+                    <li><strong>Email:</strong> info@riversidehospital.com</li>
+                    <li><strong>Website:</strong> www.riversidehospital.com</li>
+                </ul>
+                
+                <h3 class="mt-4">Visiting Hours</h3>
+                <ul>
+                    <li><strong>General Wards:</strong> 10:00 AM - 8:00 PM</li>
+                    <li><strong>ICU:</strong> 11:00 AM - 7:00 PM</li>
+                    <li><strong>Maternity:</strong> 9:00 AM - 9:00 PM</li>
+                </ul>
+                
+                <h3 class="mt-4">Emergency Services</h3>
+                <p>Our Emergency Department is open 24/7 and staffed by board-certified emergency medicine physicians. Average wait time is less than 15 minutes for critical cases.</p>
+                
+                <h3 class="mt-4">Parking Information</h3>
+                <p>Free parking is available for patients and visitors in the main parking garage. Valet service is available at the main entrance from 7:00 AM to 7:00 PM.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Feedback Section -->
+    <div class="feedback-section">
+        <h2>Patient Feedback</h2>
+        <p>We value your feedback to help us improve our services. Please take a moment to share your experience with us.</p>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <form class="feedback-form">
+                    <div class="mb-3">
+                        <label for="feedbackName" class="form-label">Your Name</label>
+                        <input type="text" class="form-control" id="feedbackName" placeholder="Enter your name">
+                    </div>
+                    <div class="mb-3">
+                        <label for="feedbackEmail" class="form-label">Email Address</label>
+                        <input type="email" class="form-control" id="feedbackEmail" placeholder="Enter your email">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Your Rating</label>
+                        <div class="rating-stars">
+                            <i class="fas fa-star" data-rating="1"></i>
+                            <i class="fas fa-star" data-rating="2"></i>
+                            <i class="fas fa-star" data-rating="3"></i>
+                            <i class="fas fa-star" data-rating="4"></i>
+                            <i class="fas fa-star" data-rating="5"></i>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="feedbackMessage" class="form-label">Your Feedback</label>
+                        <textarea class="form-control" id="feedbackMessage" rows="4" placeholder="Share your experience with us"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-submit">Submit Feedback</button>
+                </form>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h4 class="card-title">Recent Patient Testimonials</h4>
+                        <div class="testimonial mb-4">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="avatar-initial rounded-circle bg-primary bg-opacity-10 text-primary me-2">
+                                    JD
+                                </div>
+                                <div>
+                                    <div class="fw-bold">John Doe</div>
+                                    <div class="small text-dark">Patient</div>
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                            </div>
+                            <p class="card-text">"The care I received at Riverside General Hospital was exceptional. The staff was attentive, professional, and made me feel comfortable throughout my stay. I highly recommend this hospital to anyone in need of medical care."</p>
+                        </div>
+                        <div class="testimonial">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="avatar-initial rounded-circle bg-primary bg-opacity-10 text-primary me-2">
+                                    SJ
+                                </div>
+                                <div>
+                                    <div class="fw-bold">Sarah Johnson</div>
+                                    <div class="small text-dark">Patient</div>
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="far fa-star text-warning"></i>
+                            </div>
+                            <p class="card-text">"I was impressed by the efficiency and cleanliness of the hospital. The doctors took the time to explain my condition and treatment options. The only suggestion I would make is to improve the food quality in the cafeteria."</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Update current time
+        function updateTime() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            const formattedHours = hours % 12 || 12;
+            const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
+            document.getElementById('current-time').textContent = `${formattedHours}:${formattedMinutes} ${ampm}`;
+        }
+        
+        updateTime();
+        setInterval(updateTime, 60000); // Update every minute
+        
+        // Hospital Statistics Chart
+            const options = {
+            series: [{
+                name: 'Patients',
+                data: [31, 40, 28, 51, 42, 109, 100]
+            }, {
+                name: 'Appointments',
+                data: [11, 32, 45, 32, 34, 52, 41]
+            }],
+            chart: {
+                height: 350,
+                type: 'area',
+                toolbar: {
+                    show: false
+                },
+                zoom: {
+                    enabled: false
+                },
+                foreColor: document.documentElement.getAttribute("data-bs-theme") === "dark" ? '#f1f1f1' : '#6c757d'
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                curve: 'smooth',
+                width: 2
+            },
+            colors: ['#4361ee', '#4cc9f0'],
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    shadeIntensity: 1,
+                    opacityFrom: 0.7,
+                    opacityTo: 0.2,
+                    stops: [0, 90, 100]
+                }
+            },
+            xaxis: {
+                categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                labels: {
+                    style: {
+                        colors: document.documentElement.getAttribute("data-bs-theme") === "dark" ? '#f1f1f1' : '#6c757d'
+                    }
+                },
+                axisBorder: {
+                    color: document.documentElement.getAttribute("data-bs-theme") === "dark" ? '#444' : '#e0e0e0'
+                },
+                axisTicks: {
+                    color: document.documentElement.getAttribute("data-bs-theme") === "dark" ? '#444' : '#e0e0e0'
+                }
+            },
+            yaxis: {
+                labels: {
+                    style: {
+                        colors: document.documentElement.getAttribute("data-bs-theme") === "dark" ? '#f1f1f1' : '#6c757d'
+                    }
+                }
+            },
+            grid: {
+                borderColor: document.documentElement.getAttribute("data-bs-theme") === "dark" ? '#444' : '#e0e0e0'
+            },
+            tooltip: {
+                theme: document.documentElement.getAttribute("data-bs-theme") === "dark" ? 'dark' : 'light',
+                x: {
+                    format: 'dd/MM/yy HH:mm'
+                }
+            },
+            legend: {
+                position: 'top',
+                horizontalAlign: 'right',
+                floating: true,
+                offsetY: -25,
+                offsetX: -5,
+                labels: {
+                    colors: document.documentElement.getAttribute("data-bs-theme") === "dark" ? '#f1f1f1' : '#6c757d'
+                }
+            }
+        };
+        
+        const chart = new ApexCharts(document.querySelector("#hospitalStatsChart"), options);
+        chart.render();
+        
+        // Period selector for chart
+        document.querySelectorAll('[data-period]').forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                document.querySelectorAll('[data-period]').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Here you would typically update the chart data based on the selected period
+                // For demo purposes, we're just logging the selected period
+                console.log('Selected period:', this.dataset.period);
+            });
+        });
+        
+        // Star rating functionality
+        const stars = document.querySelectorAll('.rating-stars i');
+        let selectedRating = 0;
+        
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                const rating = parseInt(this.getAttribute('data-rating'));
+                selectedRating = rating;
+                
+                // Update star display
+                stars.forEach(s => {
+                    if (parseInt(s.getAttribute('data-rating')) <= rating) {
+                        s.classList.remove('far');
+                        s.classList.add('fas');
+                    } else {
+                        s.classList.remove('fas');
+                        s.classList.add('far');
+                    }
+                });
+            });
+            
+            // Hover effect
+            star.addEventListener('mouseover', function() {
+                const rating = parseInt(this.getAttribute('data-rating'));
+                
+                stars.forEach(s => {
+                    if (parseInt(s.getAttribute('data-rating')) <= rating) {
+                        s.classList.remove('far');
+                        s.classList.add('fas');
+                    } else {
+                        s.classList.remove('fas');
+                        s.classList.add('far');
+                    }
+                });
+            });
+        });
+        
+        // Reset stars on mouseout
+        document.querySelector('.rating-stars').addEventListener('mouseout', function() {
+            stars.forEach(s => {
+                const rating = parseInt(s.getAttribute('data-rating'));
+                if (rating <= selectedRating) {
+                    s.classList.remove('far');
+                    s.classList.add('fas');
+                } else {
+                    s.classList.remove('fas');
+                    s.classList.add('far');
+                }
+            });
+        });
+        
+        // Form submission
+        document.querySelector('.feedback-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Here you would typically send the form data to the server
+            // For demo purposes, we'll just show an alert
+            alert('Thank you for your feedback! We appreciate your input.');
+            
+            // Reset the form
+            this.reset();
+            selectedRating = 0;
+            stars.forEach(s => {
+                s.classList.remove('fas');
+                s.classList.add('far');
+            });
+        });
+    });
+</script>
+{% endblock %} 

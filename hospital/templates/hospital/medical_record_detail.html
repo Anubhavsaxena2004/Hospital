@@ -1,0 +1,65 @@
+{% extends "hospital/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Medical Record Details</h2>
+        <div>
+            <a href="{% url 'medical_record_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5>Patient Information</h5>
+                    <p><strong>Name:</strong> {{ record.patient.get_full_name }}</p>
+                    <p><strong>Date of Birth:</strong> {{ record.patient.date_of_birth|date:"M d, Y" }}</p>
+                    <p><strong>Gender:</strong> {{ record.patient.get_gender_display }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Doctor Information</h5>
+                    <p><strong>Name:</strong> Dr. {{ record.doctor.get_full_name }}</p>
+                    <p><strong>Specialization:</strong> {{ record.doctor.get_specialization_display }}</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h5>Record Details</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Date:</strong> {{ record.date|date:"M d, Y" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Time:</strong> {{ record.time|time:"H:i" }}</p>
+                    </div>
+                </div>
+                <div class="card bg-light mt-2">
+                    <div class="card-body">
+                        <h6>Diagnosis</h6>
+                        <p>{{ record.diagnosis }}</p>
+                    </div>
+                </div>
+                <div class="card bg-light mt-2">
+                    <div class="card-body">
+                        <h6>Treatment</h6>
+                        <p>{{ record.treatment }}</p>
+                    </div>
+                </div>
+            </div>
+
+            {% if record.appointment %}
+            <div class="alert alert-info">
+                <strong>Related Appointment:</strong> 
+                <a href="{% url 'appointment_detail' pk=record.appointment.pk %}">
+                    {{ record.appointment.appointment_date|date:"M d, Y" }} at {{ record.appointment.appointment_time|time:"H:i" }}
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

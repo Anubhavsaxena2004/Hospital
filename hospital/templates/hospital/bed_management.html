@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Bed Management</h2>
+    <a href="{% url 'bed_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Add New Bed
+    </a>
+</div>
+
+<form method="get" class="form-inline mb-4">
+    <select name="status" class="form-select">
+        <option value="all" {% if status_filter == "all" %}selected{% endif %}>All Status</option>
+        <option value="available" {% if status_filter == "available" %}selected{% endif %}>Available</option>
+        <option value="occupied" {% if status_filter == "occupied" %}selected{% endif %}>Occupied</option>
+    </select>
+
+    <select name="type" class="form-select">
+        <option value="all" {% if type_filter == "all" %}selected{% endif %}>All Wards</option>
+        <option value="icu" {% if type_filter == "icu" %}selected{% endif %}>ICU</option>
+        <option value="private" {% if type_filter == "private" %}selected{% endif %}>Private</option>
+        <option value="general" {% if type_filter == "general" %}selected{% endif %}>General</option>
+    </select>
+
+    <button type="submit" class="btn btn-primary">Filter</button>
+</form>
+
+<div class="row">
+    {% for bed in beds %}
+    <div class="col-md-4 mb-4">
+        <div class="card mb-4 {% if bed.status == 'available' %}bg-success{% else %}bg-danger{% endif %} text-white">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Bed {{ bed.number }}</span>
+                <span class="badge bg-dark">{{ bed.get_status_display }}</span>
+            </div>
+            <div class="card-body bg-light text-dark">
+                <p><strong>Ward:</strong> {{ bed.get_ward_display }}</p>
+                <p><strong>Patient:</strong> {% if bed.patient %}{{ bed.patient }}{% else %}None{% endif %}</p>
+                <p><strong>Last Updated:</strong> {{ bed.updated_at|date:"M d, Y H:i" }}</p>
+            </div>
+            <div class="card-footer bg-white">
+                <a href="{% url 'bed_detail' bed.id %}" class="btn btn-outline-primary">Details</a>
+                <a href="{% url 'bed_edit' bed.id %}" class="btn btn-outline-secondary">Edit</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

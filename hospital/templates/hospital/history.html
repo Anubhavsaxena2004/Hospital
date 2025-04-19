@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}System History - Hospital Management System{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+            {% include 'hospital/dashboard_sidebar.html' %}
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">System History</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="exportBtn">
+                            <i class="fas fa-download me-1"></i> Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-3">
+                            <label for="type" class="form-label">Activity Type</label>
+                            <select class="form-select" id="type" name="type">
+                                <option value="">All Types</option>
+                                {% for type_code, type_name in activity_types %}
+                                    <option value="{{ type_code }}" {% if filter_type == type_code %}selected{% endif %}>
+                                        {{ type_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="date_from" class="form-label">Date From</label>
+                            <input type="date" class="form-control" id="date_from" name="date_from" value="{{ filter_date_from }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="date_to" class="form-label">Date To</label>
+                            <input type="date" class="form-control" id="date_to" name="date_to" value="{{ filter_date_to }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="user" class="form-label">User</label>
+                            <input type="text" class="form-control" id="user" name="user" value="{{ filter_user }}" placeholder="Username">
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-filter me-1"></i> Apply Filters
+                            </button>
+                            <a href="{% url 'history' %}" class="btn btn-outline-secondary ms-2">
+                                <i class="fas fa-times me-1"></i> Clear Filters
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Activity Timeline -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="timeline">
+                        {% for activity in activities %}
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-{{ activity.color }}"></div>
+                                <div class="timeline-content">
+                                    <div class="d-flex justify-content-between">
+                                        <h6 class="mb-0">{{ activity.title }}</h6>
+                                        <small class="text-muted">{{ activity.date|date:"M d, Y H:i" }}</small>
+                                    </div>
+                                    <p class="mb-0">{{ activity.description }}</p>
+                                    {% if activity.user %}
+                                        <small class="text-muted">By: {{ activity.user.get_full_name|default:activity.user.username }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="text-center py-5">
+                                <img src="{% static 'images/no-data.svg' %}" alt="No Data" class="mb-3" style="max-width: 200px;">
+                                <h5>No activities found</h5>
+                                <p class="text-muted">Try adjusting your filters or check back later.</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if is_paginated %}
+                    <nav aria-label="Page navigation" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1{% if filter_type %}&type={{ filter_type }}{% endif %}{% if filter_date_from %}&date_from={{ filter_date_from }}{% endif %}{% if filter_date_to %}&date_to={{ filter_date_to }}{% endif %}{% if filter_user %}&user={{ filter_user }}{% endif %}" aria-label="First">
+                                        <span aria-hidden="true">&laquo;&laquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if filter_type %}&type={{ filter_type }}{% endif %}{% if filter_date_from %}&date_from={{ filter_date_from }}{% endif %}{% if filter_date_to %}&date_to={{ filter_date_to }}{% endif %}{% if filter_user %}&user={{ filter_user }}{% endif %}" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                            {% endif %}
+
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}{% if filter_type %}&type={{ filter_type }}{% endif %}{% if filter_date_from %}&date_from={{ filter_date_from }}{% endif %}{% if filter_date_to %}&date_to={{ filter_date_to }}{% endif %}{% if filter_user %}&user={{ filter_user }}{% endif %}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if filter_type %}&type={{ filter_type }}{% endif %}{% if filter_date_from %}&date_from={{ filter_date_from }}{% endif %}{% if filter_date_to %}&date_to={{ filter_date_to }}{% endif %}{% if filter_user %}&user={{ filter_user }}{% endif %}" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if filter_type %}&type={{ filter_type }}{% endif %}{% if filter_date_from %}&date_from={{ filter_date_from }}{% endif %}{% if filter_date_to %}&date_to={{ filter_date_to }}{% endif %}{% if filter_user %}&user={{ filter_user }}{% endif %}" aria-label="Last">
+                                        <span aria-hidden="true">&raquo;&raquo;</span>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 100;
+        padding: 48px 0 0;
+        box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+    }
+
+    .sidebar-sticky {
+        position: relative;
+        top: 0;
+        height: calc(100vh - 48px);
+        padding-top: .5rem;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    .dashboard-sidebar {
+        padding: 1rem;
+    }
+
+    .sidebar-header {
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e9ecef;
+        margin-bottom: 1rem;
+    }
+
+    .sidebar-menu {
+        margin-bottom: 2rem;
+    }
+
+    .sidebar-menu .nav-link {
+        color: #495057;
+        padding: 0.5rem 1rem;
+        border-radius: 0.25rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .sidebar-menu .nav-link:hover {
+        background-color: #e9ecef;
+    }
+
+    .sidebar-menu .nav-link.active {
+        color: #fff;
+        background-color: #0d6efd;
+    }
+
+    .sidebar-footer {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 1rem;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 1rem;
+    }
+
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+
+    .timeline-item {
+        position: relative;
+        padding-bottom: 1.5rem;
+    }
+
+    .timeline-item:last-child {
+        padding-bottom: 0;
+    }
+
+    .timeline-marker {
+        position: absolute;
+        left: -30px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+    }
+
+    .timeline-content {
+        padding-left: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 0.25rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Export functionality
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            alert('Export functionality will be implemented here.');
+        });
+    });
+</script>
+{% endblock %} 

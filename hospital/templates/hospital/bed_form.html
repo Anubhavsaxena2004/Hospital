@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if form.instance.pk %}Edit Bed{% else %}New Bed{% endif %} - Hospital Management System
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        {% if form.instance.pk %}
+                            <i class="fas fa-edit me-2"></i>Edit Bed #{{ form.instance.number }}
+                        {% else %}
+                            <i class="fas fa-plus me-2"></i>Add New Bed
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="row g-3">
+                            <!-- Bed Number -->
+                            <div class="col-md-6">
+                                <label for="{{ form.number.id_for_label }}" class="form-label">Bed Number</label>
+                                {{ form.number }}
+                                {% if form.number.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.number.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Ward -->
+                            <div class="col-md-6">
+                                <label for="{{ form.ward.id_for_label }}" class="form-label">Ward</label>
+                                {{ form.ward }}
+                                {% if form.ward.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.ward.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Status -->
+                            <div class="col-md-4">
+                                <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+                                {{ form.status }}
+                                {% if form.status.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.status.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Floor -->
+                            <div class="col-md-4">
+                                <label for="{{ form.floor.id_for_label }}" class="form-label">Floor</label>
+                                {{ form.floor }}
+                                {% if form.floor.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.floor.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Room Number -->
+                            <div class="col-md-4">
+                                <label for="{{ form.room_number.id_for_label }}" class="form-label">Room Number</label>
+                                {{ form.room_number }}
+                                {% if form.room_number.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.room_number.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Equipment -->
+                            <div class="col-12">
+                                <label for="{{ form.equipment.id_for_label }}" class="form-label">Equipment</label>
+                                {{ form.equipment }}
+                                {% if form.equipment.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.equipment.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Patient -->
+                            <div class="col-md-6">
+                                <label for="{{ form.patient.id_for_label }}" class="form-label">Patient</label>
+                                {{ form.patient }}
+                                {% if form.patient.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.patient.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Notes -->
+                            <div class="col-12">
+                                <label for="{{ form.notes.id_for_label }}" class="form-label">Notes</label>
+                                {{ form.notes }}
+                                {% if form.notes.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.notes.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mt-4 d-flex justify-content-between">
+                            <a href="{% url 'bed_management' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save Bed
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Style form controls */
+    select.form-control, input.form-control, textarea.form-control {
+        border-radius: 0.375rem;
+        border: 1px solid #ced4da;
+        padding: 0.375rem 0.75rem;
+    }
+
+    select.form-control:focus, input.form-control:focus, textarea.form-control:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+
+    /* Style select2 if used */
+    .select2-container--default .select2-selection--multiple {
+        border: 1px solid #ced4da;
+        border-radius: 0.375rem;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        background-color: #0d6efd;
+        border: 1px solid #0d6efd;
+        color: #fff;
+        border-radius: 0.375rem;
+        padding: 0.25rem 0.5rem;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+        color: #fff;
+        margin-right: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Form validation
+        const forms = document.querySelectorAll('.needs-validation');
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+
+        // Initialize select2 for patient field if needed
+        if (typeof $.fn.select2 !== 'undefined' && $('#{{ form.patient.id_for_label }}').length) {
+            $('#{{ form.patient.id_for_label }}').select2({
+                theme: 'bootstrap-5',
+                placeholder: 'Select patient',
+                allowClear: true
+            });
+        }
+    });
+</script>
+{% endblock %} 
+

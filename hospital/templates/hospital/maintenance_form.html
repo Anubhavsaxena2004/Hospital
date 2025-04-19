@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if object %}Edit{% else %}Create{% endif %} Maintenance Record
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{% if object %}Edit{% else %}Create{% endif %} Maintenance Record</h2>
+    
+    <form method="post" class="mt-4">
+        {% csrf_token %}
+        
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="form-group">
+                    {{ form.bed.label_tag }}
+                    {{ form.bed }}
+                    {% if form.bed.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.bed.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    {{ form.title.label_tag }}
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.title.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="form-group">
+                    {{ form.status.label_tag }}
+                    {{ form.status }}
+                    {% if form.status.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.status.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    {{ form.priority.label_tag }}
+                    {{ form.priority }}
+                    {% if form.priority.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.priority.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group mb-3">
+            {{ form.description.label_tag }}
+            {{ form.description }}
+            {% if form.description.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.description.errors }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="form-group">
+                    {{ form.technician.label_tag }}
+                    {{ form.technician }}
+                    {% if form.technician.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.technician.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group mb-3">
+            {{ form.notes.label_tag }}
+            {{ form.notes }}
+            {% if form.notes.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.notes.errors }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="form-group mt-4">
+            <button type="submit" class="btn btn-primary">
+                {% if object %}Update{% else %}Create{% endif %} Record
+            </button>
+            <a href="{% url 'bed_list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

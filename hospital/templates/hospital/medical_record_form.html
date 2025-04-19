@@ -1,0 +1,122 @@
+{% extends "hospital/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{% if form.instance.pk %}Edit{% else %}Create{% endif %} Medical Record</h2>
+    
+    <form method="post" class="mt-4">
+        {% csrf_token %}
+        
+        <div class="card">
+            <div class="card-body">
+                <!-- Patient Information -->
+                <div class="mb-4">
+                    <h5 class="card-title">Patient Information</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                <div class="form-group">
+                    <label>Patient</label>
+                    {% if form.instance.patient or form.initial.patient %}
+                    <input type="text" class="form-control" 
+                           value="{{ form.instance.patient.get_full_name|default:form.initial.patient.get_full_name }}" 
+                           readonly>
+                    {% else %}
+                    {{ form.patient }}
+                    {% endif %}
+                </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Doctor</label>
+                                {% if form.instance.doctor or form.initial.doctor %}
+                                <input type="text" class="form-control" 
+                                       value="Dr. {{ form.instance.doctor.get_full_name|default:form.initial.doctor.get_full_name }}" 
+                                       readonly>
+                                {% else %}
+                                {{ form.doctor }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Record Details -->
+                <div class="mb-4">
+                    <h5 class="card-title">Record Details</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.date.label_tag }}
+                                {{ form.date }}
+                                {% if form.date.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.date.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.time.label_tag }}
+                                {{ form.time }}
+                                {% if form.time.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.time.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.diagnosis.label_tag }}
+                        {{ form.diagnosis }}
+                        {% if form.diagnosis.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.diagnosis.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.treatment.label_tag }}
+                        {{ form.treatment }}
+                        {% if form.treatment.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.treatment.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="{% if form.instance.appointment %}{% url 'appointment_detail' pk=form.instance.appointment.pk %}{% elif form.instance.patient %}{% url 'patient_detail' pk=form.instance.patient.pk %}{% else %}{% url 'medical_record_list' %}{% endif %}" 
+                       class="btn btn-secondary">
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        {% if form.instance.pk %}Update{% else %}Create{% endif %} Record
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Initialize date picker
+    document.addEventListener('DOMContentLoaded', function() {
+        flatpickr("#id_date", {
+            dateFormat: "Y-m-d",
+            allowInput: true
+        });
+        
+        flatpickr("#id_time", {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: "H:i",
+            time_24hr: true
+        });
+    });
+</script>
+{% endblock %}

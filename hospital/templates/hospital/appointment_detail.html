@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block title %}Appointment Details - Hospital Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Appointment Details</h1>
+        <div class="btn-group">
+            <a href="{% url 'appointment_update' appointment.id %}" class="btn btn-primary">
+                <i class="fas fa-edit me-2"></i>Edit
+            </a>
+            <a href="{% url 'appointment_delete' appointment.id %}" class="btn btn-danger">
+                <i class="fas fa-trash me-2"></i>Delete
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Appointment Information -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Appointment Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Status</h6>
+                            <span class="badge bg-{{ appointment.status|lower }} fs-6">
+                                {{ appointment.status }}
+                            </span>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Type</h6>
+                            <p class="mb-0">{{ appointment.appointment_type }}</p>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Appointment Date</h6>
+                            <p class="mb-0">{{ appointment.appointment_date|date:"F d, Y" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Appointment Time</h6>
+                            <p class="mb-0">{{ appointment.appointment_time|time:"H:i" }}</p>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Department</h6>
+                            <p class="mb-0">{{ appointment.department }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Status</h6>
+                            <span class="badge bg-{{ appointment.status_color }}">
+                                {{ appointment.get_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <h6 class="text-muted">Notes</h6>
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    {{ appointment.notes|default:"No notes available"|linebreaks }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Medical Records Section -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Medical Records</h5>
+                    <a href="{% url 'medical_record_create' %}?appointment={{ appointment.id }}" 
+                       class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus me-2"></i>Add Record
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if medical_records %}
+                        <div class="list-group">
+                            {% for record in medical_records %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ record.diagnosis }}</h6>
+                                        <small class="text-muted">
+                                            {{ record.created_at|date:"M d, Y" }}
+                                        </small>
+                                    </div>
+                                    <p class="mb-1">{{ record.notes|truncatewords:30 }}</p>
+                                    <small>
+                                        <a href="{% url 'medical_record_detail' record.id %}" 
+                                           class="text-primary">View Details</a>
+                                    </small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">No medical records available for this appointment.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Information -->
+        <div class="col-md-4">
+            <!-- Patient Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Patient Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-user-circle fa-2x text-primary"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-0">{{ appointment.patient.get_full_name }}</h6>
+                            <small class="text-muted">ID: {{ appointment.patient.id }}</small>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Age:</small>
+                        <p class="mb-0">{{ appointment.patient.age }} years</p>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Contact:</small>
+                        <p class="mb-0">{{ appointment.patient.phone }}</p>
+                    </div>
+                    <div>
+                        <small class="text-muted">Email:</small>
+                        <p class="mb-0">{{ appointment.patient.email }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Doctor Information -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Doctor Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-user-md fa-2x text-primary"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-0">Dr. {{ appointment.doctor.get_full_name }}</h6>
+                            <small class="text-muted">{{ appointment.doctor.specialization }}</small>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Department:</small>
+                        <p class="mb-0">{{ appointment.doctor.department }}</p>
+                    </div>
+                    <div>
+                        <small class="text-muted">Contact:</small>
+                        <p class="mb-0">{{ appointment.doctor.phone }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

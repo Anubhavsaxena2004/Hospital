@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Transaction Receipt - {{ transaction.reference_number }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .logo {
+            max-width: 150px;
+        }
+        .transaction-details {
+            margin-bottom: 20px;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 0.8em;
+            color: #777;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Hospital Management System</h2>
+            <h3>Transaction Receipt</h3>
+        </div>
+
+        <div class="transaction-details">
+            <p><strong>Reference Number:</strong> {{ transaction.reference_number }}</p>
+            <p><strong>Date:</strong> {{ transaction.date|date:"F j, Y H:i" }}</p>
+            <p><strong>Type:</strong> {{ transaction.get_type_display }}</p>
+            <p><strong>Category:</strong> {{ transaction.get_category_display }}</p>
+            <p><strong>Department:</strong> {{ transaction.get_department_display }}</p>
+            <p><strong>Amount:</strong> ${{ transaction.amount }}</p>
+            <p><strong>Status:</strong> {{ transaction.get_status_display }}</p>
+            {% if transaction.description %}
+            <p><strong>Description:</strong> {{ transaction.description }}</p>
+            {% endif %}
+        </div>
+
+        <div class="footer">
+            <p>This is an automated receipt. Please do not reply to this email.</p>
+            <p>© {% now "Y" %} Hospital Management System. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

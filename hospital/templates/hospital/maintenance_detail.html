@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}Maintenance Record #{{ object.id }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>Maintenance Record #{{ object.id }}</h2>
+                <div>
+                    <a href="{% url 'maintenance_update' object.id %}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <a href="{% url 'maintenance_list' %}" class="btn btn-sm btn-secondary">
+                        <i class="fas fa-list"></i> Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h5>Basic Information</h5>
+                    <dl class="row">
+                        <dt class="col-sm-4">Bed:</dt>
+                        <dd class="col-sm-8">{{ object.bed }}</dd>
+                        
+                        <dt class="col-sm-4">Title:</dt>
+                        <dd class="col-sm-8">{{ object.title }}</dd>
+                        
+                        <dt class="col-sm-4">Status:</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge bg-{{ object.status_color }}">
+                                {{ object.get_status_display }}
+                            </span>
+                        </dd>
+                        
+                        <dt class="col-sm-4">Priority:</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge bg-{{ object.priority_color }}">
+                                {{ object.get_priority_display }}
+                            </span>
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <h5>Timing Information</h5>
+                    <dl class="row">
+                        <dt class="col-sm-4">Reported:</dt>
+                        <dd class="col-sm-8">{{ object.date_reported }}</dd>
+                        
+                        <dt class="col-sm-4">Started:</dt>
+                        <dd class="col-sm-8">{{ object.date_started|default:"-" }}</dd>
+                        
+                        <dt class="col-sm-4">Completed:</dt>
+                        <dd class="col-sm-8">{{ object.date_completed|default:"-" }}</dd>
+                        
+                        <dt class="col-sm-4">Duration:</dt>
+                        <dd class="col-sm-8">
+                            {% if object.duration %}
+                                {{ object.duration|floatformat:2 }} hours
+                            {% else %}
+                                -
+                            {% endif %}
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <h5>Description</h5>
+                <div class="p-3 bg-light rounded">
+                    {{ object.description|linebreaks }}
+                </div>
+            </div>
+            
+            {% if object.notes %}
+            <div class="mb-4">
+                <h5>Notes</h5>
+                <div class="p-3 bg-light rounded">
+                    {{ object.notes|linebreaks }}
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Technician</h5>
+                    <p>{{ object.technician.get_full_name|default:"Not assigned" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

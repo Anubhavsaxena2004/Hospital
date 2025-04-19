@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% load static %}
+<!-- Debug form -->
+<p style="display:none">{{ form }}</p>
+
+{% block title %}{% if form.instance.pk %}Edit{% else %}Add{% endif %} Appointment{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-calendar-check me-2"></i>
+                        {% if form.instance.pk %}Edit Appointment{% else %}Add New Appointment{% endif %}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if messages %}
+                        <div class="alert alert-success alert-dismissible fade show">
+                            {% for message in messages %}
+                                {{ message }}
+                            {% endfor %}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endif %}
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label for="{{ form.patient.id_for_label }}" class="form-label">
+                                <i class="fas fa-user-injured me-1"></i> Patient
+                            </label>
+                            {{ form.patient }}
+                            {% for error in form.patient.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.doctor.id_for_label }}" class="form-label">
+                                <i class="fas fa-user-md me-1"></i> Doctor (Optional)
+                            </label>
+                            {{ form.doctor }}
+                            {% for error in form.doctor.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.status.id_for_label }}" class="form-label">
+                                <i class="fas fa-info-circle me-1"></i> Status (Optional)
+                            </label>
+                            {{ form.status }}
+                            {% for error in form.status.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.appointment_date.id_for_label }}" class="form-label">
+                                        <i class="fas fa-calendar-alt me-1"></i> Appointment Date (Optional)
+                                    </label>
+                                    <div class="input-group">
+                                        {{ form.appointment_date }}
+                                        <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                                    </div>
+                                    {% for error in form.date.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                    <small class="form-text text-muted">Select a future date</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.appointment_time.id_for_label }}" class="form-label">
+                                        <i class="fas fa-clock me-1"></i> Appointment Time
+                                    </label>
+                                    <div class="input-group">
+                                        {{ form.appointment_time }}
+                                        <span class="input-group-text"><i class="fas fa-clock"></i></span>
+                                    </div>
+                                    {% for error in form.time.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                    <small class="form-text text-muted">Optional - Between 8:00 AM - 6:00 PM</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.notes.id_for_label }}" class="form-label">
+                                <i class="fas fa-comment-medical me-1"></i> Notes
+                            </label>
+                            {{ form.notes }}
+                            {% for error in form.notes.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.department.id_for_label }}" class="form-label">
+                                <i class="fas fa-building me-1"></i> Department
+                            </label>
+                            {{ form.department }}
+                            {% for error in form.department.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% if form.instance.pk %}{% url 'appointment_detail' form.instance.pk %}
+                                    {% elif form.patient.value %}{% url 'patient_detail' form.patient.value %}
+                                    {% else %}{% url 'appointment_list' %}{% endif %}" 
+                               class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Flatpickr for date & time input -->
+<link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.getElementById('id_appointment_date')) {
+        flatpickr('#id_appointment_date', {
+            dateFormat: 'Y-m-d',
+            allowInput: true,
+            clickOpens: true,
+            minDate: 'today',
+            defaultDate: 'today'
+        });
+    }
+
+    if (document.getElementById('id_appointment_time')) {
+        flatpickr('#id_appointment_time', {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: 'H:i',
+            time_24hr: true,
+            clickOpens: true,
+            minTime: '08:00',
+            maxTime: '18:00',
+            minuteIncrement: 15
+        });
+    }
+});
+</script>
+{% endblock %}
